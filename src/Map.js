@@ -15,8 +15,8 @@ export default class Map extends Component {
       }
     }
 
-    this.loadMap = this.loadMap.bind(this)
-    this.recenterMap = this.recenterMap.bind(this)
+    this.loadMap = this.loadMap.bind(this);
+    this.recenterMap = this.recenterMap.bind(this);
   }
   componentDidMount() {
     if (this.props.centerAroundCurrentLocation) {
@@ -45,6 +45,16 @@ export default class Map extends Component {
 
   recenterMap() {
     // Recenter the map
+    const map = this.map;
+    const curr = this.state.currentLocation;
+
+    const google = this.props.google;
+    const maps = google.maps
+
+    if (map) {
+      let center = new maps.LatLng(curr.lat, curr.lng)
+      map.panTo(center) // panTo() method from google.maps.Map() instance
+    }
   }
 
   loadMap() {
