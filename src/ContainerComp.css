@@ -1,0 +1,11 @@
+.flex-container {
+  display: flex;
+}
+
+.list {
+  max-width: 30%;
+}
+
+.google-map {
+  max-width: 70%;
+}
