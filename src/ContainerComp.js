@@ -44,7 +44,6 @@ export class Container extends Component {
     return (
       <div className="flex-container">
         <div className="list">
-          <h1>This is where the input and shit will go.</h1>
           <LocationList spots={locations}
                         handleItemClick={this.onListItemClick}/>
         </div>
