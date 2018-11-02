@@ -1,3 +1,4 @@
+
 import React, { Component } from 'react';
 
 // Components
@@ -8,8 +9,18 @@ import Container from './ContainerComp';
 import logo from './logo.svg';
 import './App.css';
 
-class App extends Component {
+// Import hard-coded location-data
+import Locations from './locations.json'
+
+export default class App extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = { locations: Locations}
+  }
   render() {
+    const { locations } = this.state;
+
     return (
       <div className="App">
         <Header />
@@ -18,12 +29,8 @@ class App extends Component {
               an input section and a map section
            */}
 
-        <Container />
-
-
+        <Container locations={locations}/>
       </div>
-    );
+    )
   }
 }
-
-export default App;

@@ -5,6 +5,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import TextField from '@material-ui/core/TextField';
+import escapeRegExp from 'escape-string-regexp';
 
 
 
@@ -42,7 +43,8 @@ class LocationList extends Component {
     this.handleChange = this.handleChange.bind(this);
   }
   onSpotClick(e) {
-    console.log(e)
+    const name = e.nativeEvent.srcElement.innerText;
+    this.props.handleItemClick(name);
   }
   handleChange(query) {
     console.log(query)
@@ -52,6 +54,14 @@ class LocationList extends Component {
   }
   render() {
     const { classes, spots, handleItemClick } = this.props;
+
+    let showSpots;
+    if (this.state.value) {
+      const match = new RegExp(escapeRegExp(this.state.value), 'i')
+      showSpots = spots.filter((location) => match.test(location.name))
+    } else {
+      showSpots = spots;
+    }
 
     return (
       <div>
@@ -68,8 +78,8 @@ class LocationList extends Component {
         </form>
         <div className={classes.root}>
           <List component="nav">
-            {spots.map((spot, i) => (
-              <ListItem button onClick={this.onSpotClick}>
+            {showSpots.map((spot, i) => (
+              <ListItem key={i} button onClick={this.onSpotClick}>
                 <ListItemText primary={spot.name} />
               </ListItem>
             ))}
