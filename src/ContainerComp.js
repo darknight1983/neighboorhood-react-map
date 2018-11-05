@@ -28,7 +28,15 @@ export class Container extends Component {
   }
   componentDidMount() {
     console.log(this.props.google)
+    /*
+      First goal was to create the markers and apply the markers to the instance
+      of the map that I currently have in state.
 
+      Second goal is to store each marker in the markers array on the state
+      object.
+
+
+    */
     const Markers = this.props.locations.map(location => {
       return new this.props.google.maps.Marker({
         position: location.corrds,
@@ -38,6 +46,8 @@ export class Container extends Component {
     console.log(Markers)
     this.setState({markers: Markers})
   }
+
+
   onMarkerClick(props, marker, e) {
     console.log(props)
     const {lat, lng} = props.position;
@@ -65,6 +75,12 @@ export class Container extends Component {
 
   onListItemClick(name) {
     console.log(this.state.map)
+    this.props.locations.forEach(location => {
+      // console.log(location.name);
+      if(location.name === name){
+        return location;
+      }
+    })
     // Use the name that was passed to filter the locations array
     // to make sure that only the locatioan associated with this name
     // is on the map

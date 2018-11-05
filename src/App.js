@@ -17,6 +17,7 @@ export default class App extends Component {
     super(props)
 
     this.state = { locations: Locations}
+
   }
   render() {
     const { locations } = this.state;
