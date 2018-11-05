@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { GoogleApiWrapper, Map, Marker, InfoWindow } from 'google-maps-react';
+import { GoogleApiWrapper, Map, InfoWindow } from 'google-maps-react';
 
 import * as helpers from './utils/helpers';
 
@@ -14,16 +14,19 @@ export class Container extends Component {
     super(props)
 
     this.state = {
+      markers: [],
+      markerProps: [],
       showInfoWindow: false,
       activeMarker: {},
       selectedPlace: {},
-      map: null,
-      markers: []
+      map: null
+
     }
 
     this.onMarkerClick = this.onMarkerClick.bind(this);
     this.onListItemClick = this.onListItemClick.bind(this);
     this.onMapReady = this.onMapReady.bind(this);
+    this.updateMarkers = this.updateMarkers.bind(this);
 
   }
   componentDidMount() {
@@ -37,70 +40,103 @@ export class Container extends Component {
 
 
     */
-    const Markers = this.props.locations.map(location => {
-      return new this.props.google.maps.Marker({
-        position: location.corrds,
-        name: location.name,
-      })
+
+  }
+
+  updateMarkers(locations) {
+
+    // Check that locations are Available
+    if (!locations) {
+      return;
+    }
+
+    // If markers are present on the map, remove those markers
+    this.state.markers.forEach(marker => marker.setMap(null));
+
+    let markerProps = [];
+    let markers = locations.map((location, i) => {
+      const {lat, lng} = location.corrds;
+
+      helpers.getData(lat, lng).then(data => {
+        const location_id = data.response.venues[0].id;
+        helpers.getLocationImg(location_id)
+          .then(data => {
+            console.log(data)
+            const { prefix, suffix, width, height } = data.response.photos.items[0];
+            const picture = `${prefix}${width}x${height}${suffix}`;
+            let mProps = {
+              key: i,
+              index: i,
+              name: location.name,
+              position: location.corrds,
+              url: location.url,
+              picture: picture
+            };
+            markerProps.push(mProps);
+            let animation = this.props.google.maps.Animation.DROP;
+            let marker = new this.props.google.maps.Marker({
+              position: location.corrds,
+              map: this.state.map,
+              animation
+            });
+            marker.addListener('click', () => {
+              this.onMarkerClick(mProps, marker, null)
+            })
+            return marker;
+          }).catch(err => console.log(err))
+
+      }).catch(err => console.log(err))
+
     })
-    console.log(Markers)
-    this.setState({markers: Markers})
+
+
+    this.setState({markers, markerProps})
   }
 
 
   onMarkerClick(props, marker, e) {
-    console.log(props)
-    const {lat, lng} = props.position;
-
-    helpers.getData(lat, lng)
-      .then(data => {
-        const location_id = data.response.venues[0].id;
-        helpers.getLocationImg(location_id)
-          .then(data => {
-            const { prefix, suffix, width, height } = data.response.photos.items[0];
-            const picture = `${prefix}${width}x${height}${suffix}`;
-            const propsWithImg = {
-              ...props,
-              picture
-            };
-            this.setState({
-              selectedPlace: propsWithImg,
-              activeMarker: marker,
-              showingInfoWindow: true
-            });
-          })
-      })
+    this.setState({
+      selectedPlace: props,
+      activeMarker: marker,
+      showingInfoWindow: true
+    })
+    // const {lat, lng} = props.position;
+    //
+    // helpers.getData(lat, lng)
+    //   .then(data => {
+    //     const location_id = data.response.venues[0].id;
+    //     helpers.getLocationImg(location_id)
+    //       .then(data => {
+    //         const { prefix, suffix, width, height } = data.response.photos.items[0];
+    //         const picture = `${prefix}${width}x${height}${suffix}`;
+    //         const propsWithImg = {
+    //           ...props,
+    //           picture
+    //         };
+    //         this.setState({
+    //           selectedPlace: propsWithImg,
+    //           activeMarker: marker,
+    //           showingInfoWindow: true
+    //         });
+    //       })
+    //   })
 
   }
 
-  onListItemClick(name) {
-    console.log(this.state.map)
-    this.props.locations.forEach(location => {
-      // console.log(location.name);
-      if(location.name === name){
-        return location;
-      }
+  onListItemClick(name, marker, mProps) {
+    this.setState({
+      showingInfoWindow: true,
+      activeMarker: marker,
+      selectedPlace: mProps
     })
-    // Use the name that was passed to filter the locations array
-    // to make sure that only the locatioan associated with this name
-    // is on the map
-    // const newList = this.state.locations.filter((spot) => spot.name === name)
-
   }
   onMapReady(props, map) {
     this.setState({map});
-    // const { locations } = this.state;
-    // locations.forEach((spot) => {
-    //   const { lat, lng } = spot.corrds;
-    //   helpers.getData(lat, lng)
-    //   // I need to determine whether I store the data in the components
-    //   // state or find a better way to make this api call.
-    //     .then(data => console.log(data))
-    // })
-
+    this.updateMarkers(this.props.locations);
   }
   render() {
     const { locations } = this.props;
+    const { markers, markerProps } = this.state;
 
     const bounds = new this.props.google.maps.LatLngBounds();
     locations.forEach(location => {
@@ -111,7 +147,9 @@ export class Container extends Component {
       <div className="flex-container">
         <div className="list">
           <LocationList spots={locations}
-                        handleItemClick={this.onListItemClick}/>
+                        handleItemClick={this.onListItemClick}
+                        markers={markers}
+                        markerProps={markerProps}/>
         </div>
         <div className="google-map">
           <div>
@@ -124,17 +162,14 @@ export class Container extends Component {
                  bounds={bounds}
                  onReady={this.onMapReady}
                  >
-                 {locations.map((location, i) => (
-                   <Marker position={location.corrds}
-                           name={location.name}
-                           onClick={this.onMarkerClick}
-                           key={i}/>
-                 ))}
+
               <InfoWindow marker={this.state.activeMarker}
                     visible={this.state.showingInfoWindow}>
                   <div>
                     <h1>{this.state.selectedPlace.name}</h1>
-                    <img src={this.state.selectedPlace.picture} alt={'library'} />
+                    <div className="location-img">
+                      <img src={this.state.selectedPlace.picture} alt={'library'} />
+                    </div>
                   </div>
               </InfoWindow>
             </Map>

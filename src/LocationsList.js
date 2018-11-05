@@ -44,7 +44,15 @@ class LocationList extends Component {
   }
   onSpotClick(e) {
     const name = e.nativeEvent.srcElement.innerText;
-    this.props.handleItemClick(name);
+
+    const { markerProps, markers, handleItemClick } = this.props;
+
+    markerProps.forEach((mProp, i) => {
+      if (mProp.name === name) {
+        console.log(mProp.name)
+        handleItemClick(name, markers[i], mProp );
+      }
+    })
   }
   handleChange(query) {
     console.log(query)
