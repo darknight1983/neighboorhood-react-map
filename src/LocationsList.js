@@ -50,7 +50,7 @@ class LocationList extends Component {
     markerProps.forEach((mProp, i) => {
       if (mProp.name === name) {
         console.log(mProp.name)
-        handleItemClick(name, markers[i], mProp );
+        handleItemClick(name, markers[i], markerProps[i]);
       }
     })
   }

@@ -16,7 +16,7 @@ export class Container extends Component {
     this.state = {
       markers: [],
       markerProps: [],
-      showInfoWindow: false,
+      showingInfoWindow: false,
       activeMarker: {},
       selectedPlace: {},
       map: null
@@ -30,7 +30,7 @@ export class Container extends Component {
 
   }
   componentDidMount() {
-    console.log(this.props.google)
+    console.log(this.state.markerProps)
     /*
       First goal was to create the markers and apply the markers to the instance
       of the map that I currently have in state.
@@ -54,16 +54,27 @@ export class Container extends Component {
     this.state.markers.forEach(marker => marker.setMap(null));
 
     let markerProps = [];
+
+    // Array for holding markers for state object. Will need to
+    // re-factor soon.
+    let sMarkers = [];
     let markers = locations.map((location, i) => {
       const {lat, lng} = location.corrds;
+
+
+
 
       helpers.getData(lat, lng).then(data => {
         const location_id = data.response.venues[0].id;
         helpers.getLocationImg(location_id)
           .then(data => {
-            console.log(data)
-            const { prefix, suffix, width, height } = data.response.photos.items[0];
-            const picture = `${prefix}${width}x${height}${suffix}`;
+            let picture;
+            if (data.meta.code !== 200) {
+              picture = 'https://via.placeholder.com/200'
+            } else {
+              const { prefix, suffix, width, height } = data.response.photos.items[0];
+              picture = `${prefix}${width}x${height}${suffix}`;
+            }
             let mProps = {
               key: i,
               index: i,
@@ -82,6 +93,8 @@ export class Container extends Component {
             marker.addListener('click', () => {
               this.onMarkerClick(mProps, marker, null)
             })
+            // Return marker was here
+            sMarkers.push(marker)
             return marker;
           }).catch(err => console.log(err))
 
@@ -90,40 +103,24 @@ export class Container extends Component {
     })
 
 
-    this.setState({markers, markerProps})
+    this.setState({
+      markers: sMarkers,
+      markerProps
+    })
   }
 
 
   onMarkerClick(props, marker, e) {
+    console.log(marker)
     this.setState({
       selectedPlace: props,
       activeMarker: marker,
       showingInfoWindow: true
     })
-    // const {lat, lng} = props.position;
-    //
-    // helpers.getData(lat, lng)
-    //   .then(data => {
-    //     const location_id = data.response.venues[0].id;
-    //     helpers.getLocationImg(location_id)
-    //       .then(data => {
-    //         const { prefix, suffix, width, height } = data.response.photos.items[0];
-    //         const picture = `${prefix}${width}x${height}${suffix}`;
-    //         const propsWithImg = {
-    //           ...props,
-    //           picture
-    //         };
-    //         this.setState({
-    //           selectedPlace: propsWithImg,
-    //           activeMarker: marker,
-    //           showingInfoWindow: true
-    //         });
-    //       })
-    //   })
-
   }
 
   onListItemClick(name, marker, mProps) {
+    console.log(marker)
     this.setState({
       showingInfoWindow: true,
       activeMarker: marker,
