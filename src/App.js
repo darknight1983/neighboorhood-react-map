@@ -3,10 +3,9 @@ import React, { Component } from 'react';
 
 // Components
 import Header from './Header';
-import TwoColGrid from './TwoColGrid';
 import Container from './ContainerComp';
 
-import logo from './logo.svg';
+
 import './App.css';
 
 // Import hard-coded location-data
