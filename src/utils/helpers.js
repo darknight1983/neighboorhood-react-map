@@ -1,9 +1,8 @@
 const endPoint = 'https://api.foursquare.com/v2/venues/search?';
 const client_id =  '4WJPHW0P5XVZAMPLU4CLCKLVX40H31EBRQETNUILL14Y5NRU';
 const client_secret = 'GS5PZOL2XIQX1F4SIKES10P5RQ11HZXIJH0BUIPPIFVFCY0D';
-const imgEndpoint = 'https://api.foursquare.com/v2/venues/VENUE_ID/photos';
-// const lat = 33.108260;
-// const lng = -96.806760;
+
+
 const limit = 1;
 const v = 20180115;
 
