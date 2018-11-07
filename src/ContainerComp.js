@@ -30,7 +30,7 @@ export class Container extends Component {
 
   }
   componentDidMount() {
-    console.log(this.state.markerProps)
+
     /*
       First goal was to create the markers and apply the markers to the instance
       of the map that I currently have in state.
@@ -65,16 +65,21 @@ export class Container extends Component {
 
 
       helpers.getData(lat, lng).then(data => {
+        console.log(data)
+        // Grab location_id in order to make a request for a location image
         const location_id = data.response.venues[0].id;
+        // Use helper to make a request to Foursqure for an image of the library
         helpers.getLocationImg(location_id)
           .then(data => {
             let picture;
+            // If request limit is exceeded, use placeholder
             if (data.meta.code !== 200) {
               picture = 'https://via.placeholder.com/200'
             } else {
               const { prefix, suffix, width, height } = data.response.photos.items[0];
               picture = `${prefix}${width}x${height}${suffix}`;
             }
+            // Add the image to the mProps object
             let mProps = {
               key: i,
               index: i,
@@ -83,8 +88,12 @@ export class Container extends Component {
               url: location.url,
               picture: picture
             };
+            // Push the object to the markerProps array
             markerProps.push(mProps);
+            // Specify the type of movement
             let animation = this.props.google.maps.Animation.DROP;
+            // Create marker and pass the movement type as a property of the
+            // object that is passed to the constructor
             let marker = new this.props.google.maps.Marker({
               position: location.corrds,
               map: this.state.map,
@@ -93,7 +102,7 @@ export class Container extends Component {
             marker.addListener('click', () => {
               this.onMarkerClick(mProps, marker, null)
             })
-            // Return marker was here
+            // Push each marker to the markers array
             sMarkers.push(marker)
             return marker;
           }).catch(err => console.log(err))
@@ -111,7 +120,6 @@ export class Container extends Component {
 
 
   onMarkerClick(props, marker, e) {
-    console.log(marker)
     this.setState({
       selectedPlace: props,
       activeMarker: marker,
@@ -120,7 +128,6 @@ export class Container extends Component {
   }
 
   onListItemClick(name, marker, mProps) {
-    console.log(marker)
     this.setState({
       showingInfoWindow: true,
       activeMarker: marker,
@@ -129,6 +136,7 @@ export class Container extends Component {
   }
   onMapReady(props, map) {
     this.setState({map});
+    // Generate markers when the map is available
     this.updateMarkers(this.props.locations);
   }
   render() {
@@ -167,6 +175,7 @@ export class Container extends Component {
                     <div className="location-img">
                       <img src={this.state.selectedPlace.picture} alt={'library'} />
                     </div>
+                    <p><a href={this.state.selectedPlace.url}>{this.state.selectedPlace.url}</a></p>
                   </div>
               </InfoWindow>
             </Map>

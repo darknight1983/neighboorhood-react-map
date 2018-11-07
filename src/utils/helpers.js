@@ -18,7 +18,6 @@ export const getData = (lat, lng) => {
   const url = `${endPoint}client_id=${client_id}&client_secret=${client_secret}&ll=${lat},${lng}&limit=${limit}&v=${v}`
    return fetch(url)
      .then(response => response.json())
-
 }
 
 export const getLocationImg = (location_id) => {

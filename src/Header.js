@@ -38,7 +38,7 @@ function Header(props) {
         <AppBar position="static" color="secondary">
           <Toolbar>
             <Typography variant="title" color="inherit">
-              Restaurants-Map-App
+              Plano, Texas Libraries
             </Typography>
           </Toolbar>
         </AppBar>

@@ -49,13 +49,11 @@ class LocationList extends Component {
 
     markerProps.forEach((mProp, i) => {
       if (mProp.name === name) {
-        console.log(mProp.name)
         handleItemClick(name, markers[i], markerProps[i]);
       }
     })
   }
   handleChange(query) {
-    console.log(query)
     this.setState({
       value: query.trim()
     })
